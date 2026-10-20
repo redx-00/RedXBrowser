@@ -1,0 +1,36 @@
+name: Build RedXBrowser without WebView2
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Publish RedXBrowser with bundled Chromium
+        run: dotnet publish RedXBrowser.csproj --configuration Release --runtime win-x64 --self-contained true --output publish
+
+      - name: Package complete browser folder
+        shell: pwsh
+        run: Compress-Archive -Path publish\* -DestinationPath RedXBrowser-Windows-x64.zip -Force
+
+      - name: Upload browser package
+        uses: actions/upload-artifact@v4
+        with:
+          name: RedXBrowser-Windows-x64
+          path: RedXBrowser-Windows-x64.zip
+          if-no-files-found: error
+          retention-days: 7
