@@ -1,4 +1,5 @@
 using CefSharp;
+using CefSharp.WinForms;
 using System.Windows.Forms;
 
 namespace RedXBrowser;
