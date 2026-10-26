@@ -1,17 +1,27 @@
-# RedXBrowser — Chromium edition (no WebView2)
+# RedXBrowser
 
-This version replaces WebView2 with CefSharp, a .NET wrapper around Chromium Embedded Framework (CEF). The Chromium engine and supporting files are published alongside the application. It does not use Microsoft Edge WebView2.
+RedXBrowser is an experimental Windows browser prototype written in C# with the RedX Theme: near-black surfaces, red accents, and a compact native interface.
 
-## Build online
-1. Replace `RedXBrowser.csproj`, `Program.cs`, and `BrowserForm.cs` in your GitHub repository with these files.
-2. Replace `.github/workflows/build-windows.yml` with this project's workflow.
-3. Commit the changes to `main`.
-4. Open Actions and run **Build RedXBrowser without WebView2**.
-5. Download the `RedXBrowser-Windows-x64` artifact and extract it.
-6. Run `RedXBrowser.exe` from the extracted folder. Keep the other extracted files beside it; do not copy out just the EXE.
+## Current build
 
-## Notes
-- Windows x64 app. The artifact is a ZIP of the published application folder, not a single-file executable, because Chromium requires supporting native files and resources.
-- CefSharp may require the Microsoft Visual C++ 2022 Redistributable: https://github.com/cefsharp/CefSharp
-- No browser can guarantee that Windows security policy will allow it to run. Do not bypass organization-managed security controls.
-- Chromium makes this download much larger than the original WebView2-based build.
+- Native Windows Forms UI
+- Multiple tabs
+- Address/search bar, back, forward, reload, and new tab controls
+- Basic HTTP/HTTPS fetching and a very limited text/link renderer
+- No Chromium, CefSharp, WebView2, or other embedded browser engine
+- GitHub Actions publishes a self-contained Windows x64 single-file `RedXBrowser.exe`
+
+## Download
+
+1. Open the repository's **Actions** tab.
+2. Select **Build RedXBrowser** and open a successful run.
+3. Under Artifacts, download **RedXBrowser-Windows-x64**.
+4. The artifact contains the EXE directly; no application-folder ZIP is required.
+
+The executable is built for Windows x64 and includes the .NET runtime. It may be larger than a framework-dependent application.
+
+## Important limitations
+
+This is **not yet a fully fledged modern web browser**. The independent renderer currently extracts simple text and links from HTML. It does not implement JavaScript, CSS layout, images, media, cookies, authentication, downloads, extensions, or modern web standards. Many websites will not work correctly. Building a standards-compatible HTML/CSS/JavaScript engine from scratch is a substantial long-term project.
+
+This prototype deliberately avoids existing browser engines as requested. Do not use it for sensitive browsing until security and web-platform support have been developed and audited.
