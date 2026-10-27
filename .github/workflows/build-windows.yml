@@ -4,13 +4,9 @@ on:
   workflow_dispatch:
   push:
     branches: ["main"]
-    paths:
-      - "**.cs"
-      - "**.csproj"
-      - ".github/workflows/build-windows.yml"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -18,16 +14,39 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Install .NET 8
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
-      - name: Publish single-file Windows executable
+
+      - name: Restore
+        run: dotnet restore RedXBrowser.csproj
+
+      - name: Build
+        run: dotnet build RedXBrowser.csproj -c Release --no-restore
+
+      - name: Publish self-contained single EXE
         run: dotnet publish RedXBrowser.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -o publish
-      - name: Upload standalone EXE
-        uses: actions/upload-artifact@v4
+
+      - name: Verify executable exists
+        shell: pwsh
+        run: |
+          if (!(Test-Path "publish/RedXBrowser.exe")) {
+            throw "Expected publish/RedXBrowser.exe was not created."
+          }
+          Get-Item "publish/RedXBrowser.exe" | Select-Object Name, Length
+
+      - name: Publish direct EXE download on GitHub Releases
+        uses: ncipollo/release-action@v1
         with:
-          name: RedXBrowser-Windows-x64
-          path: publish/RedXBrowser.exe
-          if-no-files-found: error
-          compression-level: 0
+          tag: redxbrowser-latest
+          name: RedXBrowser Latest
+          body: "Automatically built standalone Windows x64 executable. Download RedXBrowser.exe directly; no app-folder extraction is needed."
+          artifacts: "publish/RedXBrowser.exe"
+          artifactErrorsFailBuild: true
+          allowUpdates: true
+          removeArtifacts: true
+          replacesArtifacts: true
+          makeLatest: true
+          token: ${{ secrets.GITHUB_TOKEN }}
